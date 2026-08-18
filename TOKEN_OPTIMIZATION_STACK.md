@@ -494,6 +494,7 @@ The tools are listed above in dependency order. Here's the recommended sequence:
 
 - **Graphify + Serena** complement each other: Graphify for "what depends on X?" (structural), Serena for precise symbol editing and navigation.
 - **Headroom + LeanCTX** are both input-side but operate at different layers. Headroom compresses at the transport level (between agent and LLM API). LeanCTX compresses at the agent level (what the agent reads from disk). They stack.
+  > **Note on Claude Code Stability:** Because Headroom acts as a network proxy, it can occasionally interfere with Claude Code's aggressive internal tool loops. If you experience dropped connections or failed tool calls, bypass Headroom temporarily. This is exactly why **LeanCTX** is included in the stack — it provides a stable, agent-side fallback for context compression when network proxies fail.
 - **Headroom CacheAligner + prompt caching** stack: CacheAligner stabilizes prompt prefixes so provider-side KV cache hits increase.
 - **Caveman** is independent of all input-side tools — it only affects output. Always safe to add.
 - **LiteLLM** sits below everything else as the routing layer. It's transparent to all tools above it.
