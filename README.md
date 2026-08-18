@@ -1,6 +1,6 @@
 # Awesome Token Optimization Stack
 
-[![Awesome](https://awesome.re/badge.svg)](https://awesome.re) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Stack](https://img.shields.io/badge/Stack-Open%20Source-blue.svg)](TOKEN_OPTIMIZATION_STACK.md)
 
 A curated, open-source stack to cut AI coding agent token usage by 70–90%. Step-by-step setup for Graphify, Headroom, Caveman, LeanCTX, LiteLLM, Continue.dev, LSP/MCP, and Agentsview — designed for developers and agents alike.
 
@@ -56,6 +56,14 @@ flowchart TD
 | Model Routing | [LiteLLM](https://github.com/BerriAI/litellm) | 70–75% cost reduction |
 
 ## Quick Start
+
+### ⚡ One-Line Automated Setup
+
+```bash
+chmod +x setup.sh && ./setup.sh
+```
+
+### 🛠️ Manual Step-by-Step Installation
 
 ```bash
 # 1. Codebase intelligence

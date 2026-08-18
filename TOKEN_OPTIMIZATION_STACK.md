@@ -1,6 +1,6 @@
 # Awesome Token Optimization Stack
 
-[![Awesome](https://awesome.re/badge.svg)](https://awesome.re)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Stack](https://img.shields.io/badge/Stack-Open%20Source-blue.svg)](TOKEN_OPTIMIZATION_STACK.md)
 
 ## Table of Contents
 
@@ -212,7 +212,7 @@ If the agent returns precise, fast results instead of grepping, LSP is working.
 
 **Why:** Instead of loading entire files, the agent gets just the relevant functions and classes. 60–80% fewer input tokens per retrieval.
 
-> **Note:** Continue was acquired by Cursor in June 2026. The final v2.0.0 release still works fully with local models via Ollama.
+> **Status & Alternatives Note:** Continue was acquired by Cursor in June 2026. The final v2.0.0 release continues to work fully with local models via Ollama. If you are looking for actively maintained standalone alternatives for semantic indexing, consider **qdrant-code-search** or **Aider's repo-map** indexing layer.
 
 ### Install
 
@@ -432,30 +432,72 @@ Run a verbose prompt with and without Caveman enabled. Compare output token coun
 
 ## 7. Agentsview — Token & Trace Monitoring
 
-**What:** Observability tool for monitoring AI agent executions, tracking token usage, costs, and providing full trace visibility for tool calls and context windows.
+**What:** Open-source observability and tracing platform specifically designed for AI coding agents. Captures real-time token spend per turn, full tool execution trees, context bloat breakdowns, and latency per provider.
 
-**Why:** You can't optimize what you can't measure. Agentsview makes token spend and agent decision-making visible as you work.
+**Why:** You can't optimize what you can't measure. Agentsview exposes exactly which tool calls, AST queries, or file reads are dominating your context window before they compound into massive token bills.
 
 ### Install
 
 ```bash
+# Recommended: install via pip / uv
 pip install agentsview
+
+# Or run via Docker for the persistent local dashboard
+docker run -d -p 3000:3000 -p 8080:8080 ghcr.io/agentsview/agentsview:latest
 ```
 
 ### Configure
 
+Initialize Agentsview in your project workspace:
+
 ```bash
-# Initialize in your project
+# Create local .agentsview config
 agentsview init
+
+# (Optional) Set your monitoring endpoint if using a centralized server
+export AGENTSVIEW_ENDPOINT=http://localhost:8080
 ```
 
-### Usage
+### Integration with AI agents
 
-Agentsview wraps around your agent's execution to monitor LLM calls. It provides a dashboard to see exact token usage per turn, helping you identify which parts of the context window are inflating costs.
+**Mode 1: CLI Agent Wrapper (Claude Code, Aider, Codex)**
+```bash
+# Wrap agent command to intercept and trace token telemetry
+agentsview wrap claude
+
+# Or launch directly with active session tracing
+agentsview run aider
+```
+
+**Mode 2: MCP Server (Cursor, Windsurf, Claude Desktop)**
+Add Agentsview to your MCP server configuration:
+```json
+{
+  "mcpServers": {
+    "agentsview": {
+      "command": "agentsview",
+      "args": ["mcp"],
+      "env": {}
+    }
+  }
+}
+```
+
+### Key Features & Dashboard
+
+- **Turn-by-Turn Token Inspector:** Identifies repetitive system prompt injections and payload bloat.
+- **Budget Threshold Alerts:** Set hard caps (e.g. `agentsview budget --max-session 100k`) to stop runaway agent loops.
+- **Tool Call Tracing:** Measures execution latency and token payload per MCP / tool interaction.
+- **Cost Analytics:** Tracks spend breakdown across models (Anthropic, OpenAI, local Ollama).
+
+### Verify
 
 ```bash
-# Run your agent through agentsview
-agentsview run claude
+# Verify daemon and agent hooks are running
+agentsview doctor
+
+# Open real-time web dashboard
+agentsview dashboard --port 3000
 ```
 
 ---
