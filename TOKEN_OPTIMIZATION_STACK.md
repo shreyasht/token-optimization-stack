@@ -1,4 +1,6 @@
-# Token Optimization Stack
+# Awesome Token Optimization Stack
+
+[![Awesome](https://awesome.re/badge.svg)](https://awesome.re)
 
 A step-by-step guide to setting up an open-source token optimization stack for AI-assisted coding on large codebases. Designed for developers and AI agents alike — each tool includes install commands, verification steps, and configuration for common AI coding assistants.
 
@@ -12,7 +14,7 @@ A step-by-step guide to setting up an open-source token optimization stack for A
 | Input Compression | **Headroom** | Compresses tool outputs, logs, files, RAG chunks before they reach the LLM | 60–95% fewer input tokens |
 | Input Compression | **LeanCTX** | Rust-based context layer; compressed reads, caching, agent memory | 60–90% fewer input tokens |
 | Output Compression | **Caveman** | Claude Code skill that rewrites model output into terse language | ~65% fewer output tokens |
-| Monitoring | **Tokalator** | VS Code extension for real-time token budget tracking | Visibility, not direct savings |
+| Monitoring | **Agentsview** | Observability platform for tracking token budgets and agent traces | Visibility, not direct savings |
 | Model Routing | **LiteLLM** | Routes subtasks to cheaper models automatically | 70–75% cost reduction |
 
 ## Architecture
@@ -45,7 +47,7 @@ A step-by-step guide to setting up an open-source token optimization stack for A
                                            │
                               ┌────────────▼────────────┐
                               │   MONITORING            │
-                              │  Tokalator (budget +    │
+                              │  Agentsview (budget +   │
                               │   cost tracking)        │
                               └─────────────────────────┘
 ```
@@ -55,7 +57,7 @@ A step-by-step guide to setting up an open-source token optimization stack for A
 - Python 3.10+ and pip (or [uv](https://github.com/astral-sh/uv) recommended)
 - Node.js 18+ and npm
 - An AI coding agent (Claude Code, Cursor, Codex, Gemini CLI, etc.)
-- VS Code or JetBrains IDE (for Continue.dev and Tokalator)
+- VS Code or JetBrains IDE (for Continue.dev)
 - API keys for your LLM provider(s) (for LiteLLM routing)
 
 ---
@@ -404,46 +406,37 @@ Restart Claude Code after installation.
 
 ### Verify
 
-Run a verbose prompt with and without Caveman enabled. Compare output token counts in the Claude Code status bar or via Tokalator.
+Run a verbose prompt with and without Caveman enabled. Compare output token counts in the Claude Code status bar or via Agentsview.
 
 ---
 
-## 7. Tokalator — Token Budget Monitoring
+## 7. Agentsview — Token & Trace Monitoring
 
-**What:** VS Code extension + CLI for real-time token budget tracking, cost estimates per model, and 11 slash commands for context management.
+**What:** Observability tool for monitoring AI agent executions, tracking token usage, costs, and providing full trace visibility for tool calls and context windows.
 
-**Why:** You can't optimize what you can't measure. Tokalator makes token spend visible as you work.
+**Why:** You can't optimize what you can't measure. Agentsview makes token spend and agent decision-making visible as you work.
 
 ### Install
 
-**VS Code Extension:**
-1. Open VS Code → Extensions → Search "Tokalator" → Install
-2. Or:
 ```bash
-code --install-extension vfaraji89.tokalator
+pip install agentsview
 ```
 
-**CLI + MCP Server:**
-```bash
-# Install from PyPI
-pip install tokalator
+### Configure
 
-# Or from the repo
-git clone https://github.com/vfaraji89/tokalator.git
-cd tokalator
-pip install -e .
+```bash
+# Initialize in your project
+agentsview init
 ```
 
-### Features
+### Usage
 
-- Real-time BPE token counting in the editor
-- Per-model cost estimates (Claude, GPT, Gemini, etc.)
-- `@tokalator` chat participant with 12 commands
-- Context budget caps and compaction triggers
+Agentsview wraps around your agent's execution to monitor LLM calls. It provides a dashboard to see exact token usage per turn, helping you identify which parts of the context window are inflating costs.
 
-### Usage in VS Code
-
-The Tokalator panel appears in the sidebar. It updates in real-time as you write prompts or as your agent runs. Use `@tokalator budget 50000` to set a session budget and get warnings as you approach it.
+```bash
+# Run your agent through agentsview
+agentsview run claude
+```
 
 ---
 
@@ -524,7 +517,7 @@ The tools are listed above in dependency order. Here's the recommended sequence:
 4. **Headroom** — Wrap your agent to compress all input. Stacks with everything above.
 5. **LeanCTX** — Add context caching and agent memory. Complements Headroom.
 6. **Caveman** — Compress output tokens. Independent of input-side tools.
-7. **Tokalator** — Start monitoring to see where tokens actually go.
+7. **Agentsview** — Start monitoring to see where tokens actually go.
 8. **LiteLLM** — Route to cheaper models once you understand your workload patterns.
 
 ## Stacking Notes
@@ -578,5 +571,5 @@ Expected improvements on a large codebase (10K+ files):
 - [Headroom](https://github.com/chopratejas/headroom) — Context compression layer
 - [LeanCTX](https://github.com/yvgude/lean-ctx) — Context intelligence layer
 - [Caveman](https://github.com/JuliusBrussee/caveman) — Output token compression skill
-- [Tokalator](https://github.com/vfaraji89/tokalator) — Token budget monitoring
+- [Agentsview](https://github.com/agentsview/agentsview) — Token budget monitoring and tracing
 - [LiteLLM](https://github.com/BerriAI/litellm) — Model routing proxy

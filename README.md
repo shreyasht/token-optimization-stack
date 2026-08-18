@@ -1,12 +1,46 @@
-# token-optimization-stack
+# Awesome Token Optimization Stack
 
-Curated open-source stack to cut AI coding agent token usage by 70–90%. Step-by-step setup for Graphify, Headroom, Caveman, LeanCTX, LiteLLM, Continue.dev, LSP/MCP, and Tokalator — designed for developers and agents alike.
+[![Awesome](https://awesome.re/badge.svg)](https://awesome.re) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+
+A curated, open-source stack to cut AI coding agent token usage by 70–90%. Step-by-step setup for Graphify, Headroom, Caveman, LeanCTX, LiteLLM, Continue.dev, LSP/MCP, and Agentsview — designed for developers and agents alike.
 
 ## Why This Exists
 
 AI coding agents re-send the full conversation history on every tool call. A 20-step task compounds a 50K-token first message into 500K+ tokens. Most of that spend is avoidable with the right tooling.
 
 This repo is a single, agent-readable document that covers the full stack — from codebase intelligence to compression to model routing — with install commands, verification steps, and stacking notes.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    Agent[Your AI Coding Agent<br/>Claude Code / Cursor / Codex]
+    
+    subgraph Intelligence [Codebase Intelligence]
+        Graphify[Graphify<br/>knowledge graph queries]
+        LSP[LSP/MCP<br/>go-to-def, references]
+        Continue[Continue.dev<br/>RAG semantic retrieval]
+    end
+    
+    subgraph Compression [Compression Layer]
+        Headroom[Headroom<br/>input compression]
+        LeanCTX[LeanCTX<br/>input + cache]
+        Caveman[Caveman<br/>output compression]
+    end
+    
+    subgraph Routing [Model Routing]
+        LiteLLM[LiteLLM Proxy<br/>Haiku / Sonnet / Opus]
+    end
+    
+    subgraph Monitoring [Monitoring]
+        Agentsview[Agentsview<br/>budget + cost tracking]
+    end
+    
+    Agent -- queries --> Intelligence
+    Agent -- LLM calls --> Compression
+    Compression --> Routing
+    Routing --> Monitoring
+```
 
 ## The Stack
 
@@ -18,7 +52,7 @@ This repo is a single, agent-readable document that covers the full stack — fr
 | Input Compression | [Headroom](https://github.com/chopratejas/headroom) | 60–95% fewer input tokens |
 | Input Compression | [LeanCTX](https://github.com/yvgude/lean-ctx) | 60–90% fewer input tokens |
 | Output Compression | [Caveman](https://github.com/JuliusBrussee/caveman) | ~65% fewer output tokens |
-| Monitoring | [Tokalator](https://github.com/vfaraji89/tokalator) | Visibility into token spend |
+| Monitoring | [Agentsview](https://github.com/agentsview/agentsview) | Visibility into token spend & agent traces |
 | Model Routing | [LiteLLM](https://github.com/BerriAI/litellm) | 70–75% cost reduction |
 
 ## Quick Start
@@ -37,7 +71,7 @@ curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.
 curl -fsSL https://leanctx.com/install.sh | sh && lean-ctx setup
 
 # 5. Monitoring
-code --install-extension vfaraji89.tokalator
+pip install agentsview && agentsview init
 
 # 6. Model routing
 pip install litellm && litellm --config litellm_config.yaml --port 4000
