@@ -2,7 +2,27 @@
 
 [![Awesome](https://awesome.re/badge.svg)](https://awesome.re)
 
-A step-by-step guide to setting up an open-source token optimization stack for AI-assisted coding on large codebases. Designed for developers and AI agents alike — each tool includes install commands, verification steps, and configuration for common AI coding assistants.
+## Table of Contents
+
+- [Stack Overview](#stack-overview)
+- [Architecture](#architecture)
+- [Prerequisites](#prerequisites)
+- [1. Graphify — Codebase Knowledge Graph](#1-graphify--codebase-knowledge-graph)
+- [2. LSP via MCP — Compiler-Grade Navigation for Agents](#2-lsp-via-mcp--compiler-grade-navigation-for-agents)
+- [3. Continue.dev — Embedding-Based RAG Retrieval](#3-continuedev--embedding-based-rag-retrieval)
+- [4. Headroom — Input Compression Layer](#4-headroom--input-compression-layer)
+- [5. LeanCTX — Context Intelligence Layer](#5-leanctx--context-intelligence-layer)
+- [6. Caveman — Output Compression Skill](#6-caveman--output-compression-skill)
+- [7. Agentsview — Token & Trace Monitoring](#7-agentsview--token--trace-monitoring)
+- [8. LiteLLM — Model Routing Proxy](#8-litellm--model-routing-proxy)
+- [Recommended Setup Order](#recommended-setup-order)
+- [Stacking Notes](#stacking-notes)
+- [Quick Validation](#quick-validation)
+- [Troubleshooting](#troubleshooting)
+- [Agent Instructions](#agent-instructions)
+- [References](#references)
+
+---
 
 ## Stack Overview
 
