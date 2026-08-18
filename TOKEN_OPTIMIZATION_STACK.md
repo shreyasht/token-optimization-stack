@@ -9,12 +9,11 @@
 - [Prerequisites](#prerequisites)
 - [1. Graphify — Codebase Knowledge Graph](#1-graphify--codebase-knowledge-graph)
 - [2. Serena — Symbol-Level Navigation & Editing](#2-serena--symbol-level-navigation--editing)
-- [3. Continue.dev — Embedding-Based RAG Retrieval](#3-continuedev--embedding-based-rag-retrieval)
-- [4. Headroom — Input Compression Layer](#4-headroom--input-compression-layer)
-- [5. LeanCTX — Context Intelligence Layer](#5-leanctx--context-intelligence-layer)
-- [6. Caveman — Output Compression Skill](#6-caveman--output-compression-skill)
-- [7. Agentsview — Token & Trace Monitoring](#7-agentsview--token--trace-monitoring)
-- [8. LiteLLM — Model Routing Proxy](#8-litellm--model-routing-proxy)
+- [3. Headroom — Input Compression Layer](#3-headroom--input-compression-layer)
+- [4. LeanCTX — Context Intelligence Layer](#4-leanctx--context-intelligence-layer)
+- [5. Caveman — Output Compression Skill](#5-caveman--output-compression-skill)
+- [6. Agentsview — Token & Trace Monitoring](#6-agentsview--token--trace-monitoring)
+- [7. LiteLLM — Model Routing Proxy](#7-litellm--model-routing-proxy)
 - [Recommended Setup Order](#recommended-setup-order)
 - [Stacking Notes](#stacking-notes)
 - [Quick Validation](#quick-validation)
@@ -30,7 +29,6 @@
 |-------|------|-------------|---------------|
 | Codebase Intelligence | **Graphify** | Knowledge graph from AST parsing; agents query structure instead of reading files | 7–70x fewer input tokens |
 | Codebase Intelligence | **Serena** | Symbol-level navigation and editing on top of LSP (find_symbol, rename_symbol) | ~50ms precise symbol operations |
-| Codebase Intelligence | **Continue.dev** | Embedding-based RAG retrieval; returns relevant chunks, not whole files | 60–80% fewer input tokens |
 | Input Compression | **Headroom** | Compresses tool outputs, logs, files, RAG chunks before they reach the LLM | 60–95% fewer input tokens |
 | Input Compression | **LeanCTX** | Rust-based context layer; compressed reads, caching, agent memory | 60–90% fewer input tokens |
 | Output Compression | **Caveman** | Claude Code skill that rewrites model output into terse language | ~65% fewer output tokens |
@@ -53,9 +51,8 @@
 │    graph queries)       │     │  LeanCTX (input+cache)  │
 │  Serena (symbol-level  │     │  Caveman (output)       │
 │    edit & nav)          │     │                         │
-│  Continue.dev (RAG      │     └────────────┬────────────┘
-│    semantic retrieval)  │                  │
-└─────────────────────────┘                  ▼
+└─────────────────────────┘     └────────────┬────────────┘
+                                             │
                               ┌─────────────────────────┐
                               │   MODEL ROUTING         │
                               │                         │
@@ -77,7 +74,6 @@
 - Python 3.10+ and pip (or [uv](https://github.com/astral-sh/uv) recommended)
 - Node.js 18+ and npm
 - An AI coding agent (Claude Code, Cursor, Codex, Gemini CLI, etc.)
-- VS Code or JetBrains IDE (for Continue.dev)
 - API keys for your LLM provider(s) (for LiteLLM routing)
 
 ---
@@ -187,75 +183,7 @@ Once attached, agents should prefer these tools over grep/sed:
 
 ---
 
-## 3. Continue.dev — Embedding-Based RAG Retrieval
-
-**What:** Open-source IDE extension that indexes your codebase into embeddings and retrieves only semantically relevant chunks via `@codebase` queries.
-
-**Why:** Instead of loading entire files, the agent gets just the relevant functions and classes. 60–80% fewer input tokens per retrieval.
-
-> **Status & Alternatives Note:** Continue was acquired by Cursor in June 2026. The final v2.0.0 release continues to work fully with local models via Ollama. If you are looking for actively maintained standalone alternatives for semantic indexing, consider **qdrant-code-search** or **Aider's repo-map** indexing layer.
-
-### Install
-
-**VS Code:**
-1. Open VS Code → Extensions → Search "Continue" → Install
-2. Or from the command line:
-```bash
-code --install-extension Continue.continue
-```
-
-**JetBrains:**
-1. Settings → Plugins → Marketplace → Search "Continue" → Install
-
-### Configure for local embeddings (privacy-preserving)
-
-Edit `~/.continue/config.json`:
-```json
-{
-  "embeddingsProvider": {
-    "provider": "ollama",
-    "model": "nomic-embed-text",
-    "apiBase": "http://localhost:11434"
-  },
-  "models": [
-    {
-      "title": "Claude Sonnet",
-      "provider": "anthropic",
-      "model": "claude-sonnet-4-20250514",
-      "apiKey": "YOUR_API_KEY"
-    }
-  ]
-}
-```
-
-### Index your codebase
-
-1. Open the Continue sidebar in VS Code
-2. Click "Index codebase"
-3. Wait for indexing to complete (one-time, updates incrementally)
-
-### Usage
-
-In the Continue chat:
-```
-Using @codebase, explain how authentication middleware flows in this project
-@codebase find all error handling patterns
-@codebase what tests cover the payment module?
-```
-
-### Setup local embeddings with Ollama
-
-```bash
-# Install Ollama if not present
-curl -fsSL https://ollama.com/install.sh | sh
-
-# Pull the embedding model
-ollama pull nomic-embed-text
-```
-
----
-
-## 4. Headroom — Input Compression Layer
+## 3. Headroom — Input Compression Layer
 
 **What:** Sits between your agent and the LLM. Compresses tool outputs, logs, files, and RAG chunks using content-aware algorithms (AST-aware for code, SmartCrusher for JSON, ML model for prose). Reversible — originals cached locally.
 
@@ -324,7 +252,7 @@ headroom dashboard
 
 ---
 
-## 5. LeanCTX — Context Intelligence Layer
+## 4. LeanCTX — Context Intelligence Layer
 
 **What:** A single Rust binary that controls what AI agents read, compresses context, caches repeated reads (~13 tokens on re-read), manages agent memory, and provides 76 MCP tools.
 
@@ -370,7 +298,7 @@ LeanCTX auto-configures for Cursor, Claude Code, CodeBuddy, GitHub Copilot, Wind
 
 ---
 
-## 6. Caveman — Output Compression Skill
+## 5. Caveman — Output Compression Skill
 
 **What:** Claude Code skill that instructs the model to rewrite its responses in terse, information-dense language. ~65% fewer output tokens on average; some responses drop 80%+.
 
@@ -411,7 +339,7 @@ Run a verbose prompt with and without Caveman enabled. Compare output token coun
 
 ---
 
-## 7. Agentsview — Token & Trace Monitoring
+## 6. Agentsview — Token & Trace Monitoring
 
 **What:** Open-source observability and tracing platform specifically designed for AI coding agents. Captures real-time token spend per turn, full tool execution trees, context bloat breakdowns, and latency per provider.
 
@@ -483,7 +411,7 @@ agentsview dashboard --port 3000
 
 ---
 
-## 8. LiteLLM — Model Routing Proxy
+## 7. LiteLLM — Model Routing Proxy
 
 **What:** Unified API gateway that routes LLM requests to different models/providers based on rules. Send simple tasks to cheap models, complex tasks to expensive ones.
 
@@ -556,17 +484,15 @@ The tools are listed above in dependency order. Here's the recommended sequence:
 
 1. **Graphify** — Build the knowledge graph first. Every subsequent session benefits.
 2. **Serena** — Add symbol-level navigation and editing. Complements Graphify's structural queries.
-3. **Continue.dev** — Add semantic RAG retrieval for questions Graphify's graph doesn't cover.
-4. **Headroom** — Wrap your agent to compress all input. Stacks with everything above.
-5. **LeanCTX** — Add context caching and agent memory. Complements Headroom.
-6. **Caveman** — Compress output tokens. Independent of input-side tools.
-7. **Agentsview** — Start monitoring to see where tokens actually go.
-8. **LiteLLM** — Route to cheaper models once you understand your workload patterns.
+3. **Headroom** — Wrap your agent to compress all input. Stacks with everything above.
+4. **LeanCTX** — Add context caching and agent memory. Complements Headroom.
+5. **Caveman** — Compress output tokens. Independent of input-side tools.
+6. **Agentsview** — Start monitoring to see where tokens actually go.
+7. **LiteLLM** — Route to cheaper models once you understand your workload patterns.
 
 ## Stacking Notes
 
 - **Graphify + Serena** complement each other: Graphify for "what depends on X?" (structural), Serena for precise symbol editing and navigation.
-- **Graphify + Continue.dev** complement each other: Graphify for structural queries, Continue for semantic similarity ("code similar to this pattern").
 - **Headroom + LeanCTX** are both input-side but operate at different layers. Headroom compresses at the transport level (between agent and LLM API). LeanCTX compresses at the agent level (what the agent reads from disk). They stack.
 - **Headroom CacheAligner + prompt caching** stack: CacheAligner stabilizes prompt prefixes so provider-side KV cache hits increase.
 - **Caveman** is independent of all input-side tools — it only affects output. Always safe to add.
@@ -599,17 +525,15 @@ Expected improvements on a large codebase (10K+ files):
 | LeanCTX daemon not starting | Port conflict | Check `lean-ctx doctor` output |
 | Caveman not activating | Skill not in Claude Code skills dir | Re-run install, restart Claude Code |
 | LiteLLM routing to wrong model | Config mismatch | Check `litellm_config.yaml` model names |
-| Continue.dev indexing slow | Large repo, no `.continueignore` | Add ignore patterns for `node_modules`, `dist`, etc. |
 
 ## Agent Instructions
 
-> **For AI agents reading this document:** This is a token optimization stack. When setting up a new environment, install tools in the order listed under "Recommended Setup Order." Run each verification step before proceeding to the next tool. If a tool fails to install, skip it and continue — the tools are independent and any subset provides value. After setup, prefer Graphify queries and Serena symbol tools over raw file reads. Use `@codebase` for semantic questions. The compression layers (Headroom, LeanCTX, Caveman) require no behavioral changes — they work transparently once installed.
+> **For AI agents reading this document:** This is a token optimization stack. When setting up a new environment, install tools in the order listed under "Recommended Setup Order." Run each verification step before proceeding to the next tool. If a tool fails to install, skip it and continue — the tools are independent and any subset provides value. After setup, prefer Graphify queries and Serena symbol tools over raw file reads. The compression layers (Headroom, LeanCTX, Caveman) require no behavioral changes — they work transparently once installed.
 
 ## References
 
 - [Graphify](https://github.com/Graphify-Labs/graphify) — Codebase knowledge graph
 - [Serena](https://github.com/oraios/serena) — Semantic symbol-level editing via LSP/MCP
-- [Continue.dev](https://github.com/continuedev/continue) — Open-source coding assistant with RAG
 - [Headroom](https://github.com/chopratejas/headroom) — Context compression layer
 - [LeanCTX](https://github.com/yvgude/lean-ctx) — Context intelligence layer
 - [Caveman](https://github.com/JuliusBrussee/caveman) — Output token compression skill
