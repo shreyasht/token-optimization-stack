@@ -8,7 +8,7 @@
 - [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
 - [1. Graphify — Codebase Knowledge Graph](#1-graphify--codebase-knowledge-graph)
-- [2. LSP via MCP — Compiler-Grade Navigation for Agents](#2-lsp-via-mcp--compiler-grade-navigation-for-agents)
+- [2. Serena — Symbol-Level Navigation & Editing](#2-serena--symbol-level-navigation--editing)
 - [3. Continue.dev — Embedding-Based RAG Retrieval](#3-continuedev--embedding-based-rag-retrieval)
 - [4. Headroom — Input Compression Layer](#4-headroom--input-compression-layer)
 - [5. LeanCTX — Context Intelligence Layer](#5-leanctx--context-intelligence-layer)
@@ -29,7 +29,7 @@
 | Layer | Tool | What It Does | Token Savings |
 |-------|------|-------------|---------------|
 | Codebase Intelligence | **Graphify** | Knowledge graph from AST parsing; agents query structure instead of reading files | 7–70x fewer input tokens |
-| Codebase Intelligence | **LSP via MCP** | Compiler-grade navigation (go-to-def, references, diagnostics) for agents | ~50ms vs 45s grep; precise results |
+| Codebase Intelligence | **Serena** | Symbol-level navigation and editing on top of LSP (find_symbol, rename_symbol) | ~50ms precise symbol operations |
 | Codebase Intelligence | **Continue.dev** | Embedding-based RAG retrieval; returns relevant chunks, not whole files | 60–80% fewer input tokens |
 | Input Compression | **Headroom** | Compresses tool outputs, logs, files, RAG chunks before they reach the LLM | 60–95% fewer input tokens |
 | Input Compression | **LeanCTX** | Rust-based context layer; compressed reads, caching, agent memory | 60–90% fewer input tokens |
@@ -51,8 +51,8 @@
 │                         │     │                         │
 │  Graphify (knowledge    │     │  Headroom (input)       │
 │    graph queries)       │     │  LeanCTX (input+cache)  │
-│  LSP/MCP (go-to-def,   │     │  Caveman (output)       │
-│    references)          │     │                         │
+│  Serena (symbol-level  │     │  Caveman (output)       │
+│    edit & nav)          │     │                         │
 │  Continue.dev (RAG      │     └────────────┬────────────┘
 │    semantic retrieval)  │                  │
 └─────────────────────────┘                  ▼
@@ -144,65 +144,46 @@ graphify impact-analysis <branch>            # PR impact analysis
 
 ---
 
-## 2. LSP via MCP — Compiler-Grade Navigation for Agents
+## 2. Serena — Symbol-Level Navigation & Editing
 
-**What:** Exposes Language Server Protocol servers to AI agents via MCP (Model Context Protocol). Gives agents go-to-definition, find-references, diagnostics, and rename capabilities at compiler speed.
+**What:** An open-source coding agent toolkit that gives agents IDE-like semantic understanding. It exposes symbol-level operations (`find_symbol`, `rename_symbol`, `insert_after_symbol`) instead of raw file reading.
 
-**Why:** Returns 23 real call sites instead of 500+ grep matches. Navigation in ~50ms vs 45 seconds.
+**Why:** Instead of grepping for strings and replacing lines via diffs, agents can navigate and edit code precisely by symbol, massively reducing context usage and minimizing syntax errors.
 
-### Option A: mcp-language-server (multi-language)
+### Install
 
 ```bash
-# Clone and build
-git clone https://github.com/isaacphi/mcp-language-server.git
-cd mcp-language-server
-go build -o mcp-language-server .
-
-# Configure for your language server in config.json
+# Install via pip
+pip install serena
 ```
 
-Add to your MCP config (e.g., Claude Code's `~/.claude/mcp.json`):
+### Configure for AI Agents
+
+Serena runs as an MCP server, automatically hooking into your local LSP (Python, TS, Rust, Go, etc.).
+
+**Claude Code / Cursor / Cline / Roo Code:**
+Add to your MCP settings file:
 ```json
 {
   "mcpServers": {
-    "lsp": {
-      "command": "/path/to/mcp-language-server",
-      "args": ["--workspace", "/path/to/your/project"],
+    "serena": {
+      "command": "serena",
+      "args": ["serve"],
       "env": {}
     }
   }
 }
 ```
 
-### Option B: LSAP Skill (agent-native)
+### Usage (Agent Commands)
 
-```bash
-# Download the latest release for your agent
-# https://github.com/lsp-client/LSAP/releases
+Once attached, agents should prefer these tools over grep/sed:
+- `find_symbol`: Locate definitions across the codebase
+- `find_referencing_symbols`: Find where a class/function is used
+- `rename_symbol`: Safely refactor across files
+- `insert_after_symbol`: Semantically add code without line-number guesswork
 
-# For Claude Code:
-# Unzip the skill into your Claude Code skills directory
-unzip lsap-skill-latest.zip -d ~/.claude/skills/lsp/
-```
-
-### Option C: lsp-skill (Claude Code / Codex / Gemini CLI)
-
-```bash
-# Install from the lsp-client org
-# https://github.com/lsp-client/lsp-skill
-# Follow the agent-specific install instructions in the repo README
-```
-
-### Verify
-
-In your AI agent, ask it to:
-```
-Find all references to the function "handleRequest"
-Go to the definition of "UserService"
-Show diagnostics for src/api/routes.ts
-```
-
-If the agent returns precise, fast results instead of grepping, LSP is working.
+> **Note on pure LSP:** If you want raw LSP tools (like standard go-to-def) without Serena's editing layer, you can use the lightweight [mcp-language-server](https://github.com/isaacphi/mcp-language-server).
 
 ---
 
@@ -574,7 +555,7 @@ curl http://localhost:4000/spend/logs
 The tools are listed above in dependency order. Here's the recommended sequence:
 
 1. **Graphify** — Build the knowledge graph first. Every subsequent session benefits.
-2. **LSP via MCP** — Add compiler-grade navigation. Complements Graphify's structural queries.
+2. **Serena** — Add symbol-level navigation and editing. Complements Graphify's structural queries.
 3. **Continue.dev** — Add semantic RAG retrieval for questions Graphify's graph doesn't cover.
 4. **Headroom** — Wrap your agent to compress all input. Stacks with everything above.
 5. **LeanCTX** — Add context caching and agent memory. Complements Headroom.
@@ -584,7 +565,7 @@ The tools are listed above in dependency order. Here's the recommended sequence:
 
 ## Stacking Notes
 
-- **Graphify + LSP** complement each other: Graphify for "what depends on X?" (structural), LSP for "go to definition of X" (precise navigation).
+- **Graphify + Serena** complement each other: Graphify for "what depends on X?" (structural), Serena for precise symbol editing and navigation.
 - **Graphify + Continue.dev** complement each other: Graphify for structural queries, Continue for semantic similarity ("code similar to this pattern").
 - **Headroom + LeanCTX** are both input-side but operate at different layers. Headroom compresses at the transport level (between agent and LLM API). LeanCTX compresses at the agent level (what the agent reads from disk). They stack.
 - **Headroom CacheAligner + prompt caching** stack: CacheAligner stabilizes prompt prefixes so provider-side KV cache hits increase.
@@ -607,7 +588,7 @@ Expected improvements on a large codebase (10K+ files):
 - Input tokens: 70–90% reduction (Graphify + Headroom + LeanCTX)
 - Output tokens: ~65% reduction (Caveman)
 - Cost per session: 75–90% reduction (compression + routing)
-- Navigation speed: 10–100x faster (LSP)
+- Navigation speed: 10–100x faster (Serena/LSP)
 
 ## Troubleshooting
 
@@ -622,13 +603,12 @@ Expected improvements on a large codebase (10K+ files):
 
 ## Agent Instructions
 
-> **For AI agents reading this document:** This is a token optimization stack. When setting up a new environment, install tools in the order listed under "Recommended Setup Order." Run each verification step before proceeding to the next tool. If a tool fails to install, skip it and continue — the tools are independent and any subset provides value. After setup, prefer Graphify queries and LSP navigation over raw file reads. Use `@codebase` for semantic questions. The compression layers (Headroom, LeanCTX, Caveman) require no behavioral changes — they work transparently once installed.
+> **For AI agents reading this document:** This is a token optimization stack. When setting up a new environment, install tools in the order listed under "Recommended Setup Order." Run each verification step before proceeding to the next tool. If a tool fails to install, skip it and continue — the tools are independent and any subset provides value. After setup, prefer Graphify queries and Serena symbol tools over raw file reads. Use `@codebase` for semantic questions. The compression layers (Headroom, LeanCTX, Caveman) require no behavioral changes — they work transparently once installed.
 
 ## References
 
 - [Graphify](https://github.com/Graphify-Labs/graphify) — Codebase knowledge graph
-- [LSAP](https://github.com/lsp-client/LSAP) — Language Server Agent Protocol
-- [mcp-language-server](https://github.com/isaacphi/mcp-language-server) — LSP via MCP
+- [Serena](https://github.com/oraios/serena) — Semantic symbol-level editing via LSP/MCP
 - [Continue.dev](https://github.com/continuedev/continue) — Open-source coding assistant with RAG
 - [Headroom](https://github.com/chopratejas/headroom) — Context compression layer
 - [LeanCTX](https://github.com/yvgude/lean-ctx) — Context intelligence layer

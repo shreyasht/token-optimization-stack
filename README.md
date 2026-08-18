@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Stack](https://img.shields.io/badge/Stack-Open%20Source-blue.svg)](TOKEN_OPTIMIZATION_STACK.md)
 
-A curated, open-source stack to cut AI coding agent token usage by 70–90%. Step-by-step setup for Graphify, Headroom, Caveman, LeanCTX, LiteLLM, Continue.dev, LSP/MCP, and Agentsview — designed for developers and agents alike.
+A curated, open-source stack to cut AI coding agent token usage by 70–90%. Step-by-step setup for Graphify, Headroom, Caveman, LeanCTX, LiteLLM, Continue.dev, Serena, and Agentsview — designed for developers and agents alike.
 
 ## Why This Exists
 
@@ -18,7 +18,7 @@ flowchart TD
     
     subgraph Intelligence [Codebase Intelligence]
         Graphify[Graphify<br/>knowledge graph queries]
-        LSP[LSP/MCP<br/>go-to-def, references]
+        Serena[Serena<br/>symbol-level edit & nav]
         Continue[Continue.dev<br/>RAG semantic retrieval]
     end
     
@@ -47,7 +47,7 @@ flowchart TD
 | Layer | Tool | Token Savings |
 |-------|------|---------------|
 | Codebase Intelligence | [Graphify](https://github.com/Graphify-Labs/graphify) | 7–70x fewer input tokens |
-| Codebase Intelligence | [LSP via MCP](https://github.com/isaacphi/mcp-language-server) | ~50ms vs 45s grep |
+| Codebase Intelligence | [Serena](https://github.com/oraios/serena) | Symbol-level edit & nav |
 | Codebase Intelligence | [Continue.dev](https://github.com/continuedev/continue) | 60–80% fewer input tokens |
 | Input Compression | [Headroom](https://github.com/chopratejas/headroom) | 60–95% fewer input tokens |
 | Input Compression | [LeanCTX](https://github.com/yvgude/lean-ctx) | 60–90% fewer input tokens |
