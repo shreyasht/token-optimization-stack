@@ -264,14 +264,19 @@ headroom dashboard
 ### Install
 
 ```bash
-# Universal install script (recommended)
-curl -fsSL https://leanctx.com/install.sh | sh
+# Universal install script — pinned to a release tag, not a floating branch
+curl -fsSL https://raw.githubusercontent.com/yvgude/lean-ctx/v3.9.19/install.sh | sh
 
 # Homebrew
 brew tap yvgude/lean-ctx && brew install lean-ctx
 
 # Cargo (from source)
 cargo install lean-ctx
+```
+
+**Verify without piping to shell:** each release publishes `SHA256SUMS`, a detached signature (`SHA256SUMS.sig`), a cert (`SHA256SUMS.pem`), and an SBOM. Download the binary for your platform plus `SHA256SUMS` from the [releases page](https://github.com/yvgude/lean-ctx/releases), then:
+```bash
+sha256sum -c SHA256SUMS --ignore-missing
 ```
 
 ### Setup
@@ -307,8 +312,8 @@ LeanCTX auto-configures for Cursor, Claude Code, CodeBuddy, GitHub Copilot, Wind
 ### Install
 
 ```bash
-# One-line install
-curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash
+# One-line install — pinned to a release tag, not a floating branch
+curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/v2.1.0/install.sh | bash
 
 # Alternative: npm
 npm install -g @caveman-ai/cli && caveman setup --install
@@ -319,6 +324,11 @@ claude plugin install caveman@caveman
 ```
 
 Restart Claude Code after installation.
+
+**Verify without piping to shell:** each release publishes `checksums.txt` and a detached signature (`checksums.txt.keysig`) alongside the platform binaries. Download the binary for your platform plus `checksums.txt` from the [releases page](https://github.com/JuliusBrussee/caveman/releases), then:
+```bash
+sha256sum -c checksums.txt --ignore-missing
+```
 
 ### Usage
 

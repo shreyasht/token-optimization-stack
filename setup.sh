@@ -101,7 +101,7 @@ install_headroom() {
 
 install_caveman() {
     info "Installing Caveman (Output Compression Skill)..."
-    if curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash; then
+    if curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/v2.1.0/install.sh | bash; then
         success "Caveman skill installed."
     else
         warn "Caveman install script failed. Continuing with remaining tools..."
@@ -110,7 +110,7 @@ install_caveman() {
 
 install_leanctx() {
     info "Installing LeanCTX (Context Layer & Memory)..."
-    if curl -fsSL https://leanctx.com/install.sh | sh; then
+    if curl -fsSL https://raw.githubusercontent.com/yvgude/lean-ctx/v3.9.19/install.sh | sh; then
         if command -v lean-ctx &>/dev/null; then
             lean-ctx setup || true
             success "LeanCTX installed and hooks initialized."

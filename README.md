@@ -72,10 +72,10 @@ uv tool install serena-agent
 pip install "headroom-ai[all]" && headroom wrap claude
 
 # 3. Output compression
-curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/v2.1.0/install.sh | bash
 
 # 4. Context layer
-curl -fsSL https://leanctx.com/install.sh | sh && lean-ctx setup
+curl -fsSL https://raw.githubusercontent.com/yvgude/lean-ctx/v3.9.19/install.sh | sh && lean-ctx setup
 
 # 5. Monitoring
 pip install agentsview && agentsview init
