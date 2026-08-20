@@ -47,10 +47,10 @@ flowchart TD
 |-------|------|---------------|
 | Codebase Intelligence | [Graphify](https://github.com/Graphify-Labs/graphify) | 7–70x fewer input tokens |
 | Codebase Intelligence | [Serena](https://github.com/oraios/serena) | Symbol-level edit & nav |
-| Input Compression | [Headroom](https://github.com/chopratejas/headroom) | 60–95% fewer input tokens |
+| Input Compression | [Headroom](https://github.com/headroomlabs-ai/headroom) | 60–95% fewer input tokens |
 | Input Compression | [LeanCTX](https://github.com/yvgude/lean-ctx) | 60–90% fewer input tokens |
 | Output Compression | [Caveman](https://github.com/JuliusBrussee/caveman) | ~65% fewer output tokens |
-| Monitoring | [Agentsview](https://github.com/agentsview/agentsview) | Visibility into token spend & agent traces |
+| Monitoring | [Agentsview](https://github.com/kenn-io/agentsview) | Visibility into token spend & agent traces |
 | Model Routing | [LiteLLM](https://github.com/BerriAI/litellm) | 70–75% cost reduction |
 
 ## Quick Start
@@ -66,6 +66,7 @@ chmod +x setup.sh && ./setup.sh
 ```bash
 # 1. Codebase intelligence
 pip install graphifyy && graphify install && graphify build .
+uv tool install serena-agent
 
 # 2. Input compression
 pip install "headroom-ai[all]" && headroom wrap claude

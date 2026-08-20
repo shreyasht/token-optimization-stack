@@ -80,6 +80,15 @@ install_graphify() {
     fi
 }
 
+install_serena() {
+    info "Installing Serena (Symbol-Level Navigation & Editing)..."
+    if $TOOL_CMD serena-agent; then
+        success "Serena installed."
+    else
+        warn "Serena installation failed."
+    fi
+}
+
 install_headroom() {
     info "Installing Headroom (Input Compression Layer)..."
     if $PIP_CMD "headroom-ai[all]"; then
@@ -134,6 +143,7 @@ run_diagnostics() {
     info "Running post-install diagnostics..."
     
     command -v graphify &>/dev/null && echo -e "  - Graphify:    ${GREEN}OK${NC}" || echo -e "  - Graphify:    ${YELLOW}Not in PATH${NC}"
+    command -v serena &>/dev/null && echo -e "  - Serena:      ${GREEN}OK${NC}" || echo -e "  - Serena:      ${YELLOW}Not in PATH${NC}"
     command -v headroom &>/dev/null && echo -e "  - Headroom:    ${GREEN}OK${NC}" || echo -e "  - Headroom:    ${YELLOW}Not in PATH${NC}"
     command -v lean-ctx &>/dev/null && echo -e "  - LeanCTX:     ${GREEN}OK${NC}" || echo -e "  - LeanCTX:     ${YELLOW}Not in PATH${NC}"
     command -v agentsview &>/dev/null && echo -e "  - Agentsview:  ${GREEN}OK${NC}" || echo -e "  - Agentsview:  ${YELLOW}Not in PATH${NC}"
@@ -147,14 +157,16 @@ main() {
     echo ""
     echo "This script will install the open-source token optimization stack:"
     echo "  1. Graphify (Codebase Knowledge Graph)"
-    echo "  2. Headroom (Input Compression)"
-    echo "  3. Caveman (Output Compression Skill)"
-    echo "  4. LeanCTX (Context Layer & MCP Cache)"
-    echo "  5. Agentsview (Token & Trace Observability)"
-    echo "  6. LiteLLM (Model Routing Proxy)"
+    echo "  2. Serena (Symbol-Level Navigation & Editing)"
+    echo "  3. Headroom (Input Compression)"
+    echo "  4. Caveman (Output Compression Skill)"
+    echo "  5. LeanCTX (Context Layer & MCP Cache)"
+    echo "  6. Agentsview (Token & Trace Observability)"
+    echo "  7. LiteLLM (Model Routing Proxy)"
     echo ""
 
     install_graphify
+    install_serena
     install_headroom
     install_caveman
     install_leanctx

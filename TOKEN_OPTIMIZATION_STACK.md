@@ -149,8 +149,11 @@ graphify impact-analysis <branch>            # PR impact analysis
 ### Install
 
 ```bash
-# Install via pip
-pip install serena
+# Recommended: uv tool install (matches upstream instructions)
+uv tool install serena-agent
+
+# Alternative: pip
+pip install serena-agent
 ```
 
 ### Configure for AI Agents
@@ -267,9 +270,6 @@ curl -fsSL https://leanctx.com/install.sh | sh
 # Homebrew
 brew tap yvgude/lean-ctx && brew install lean-ctx
 
-# npm
-npm install -g lean-ctx-bin
-
 # Cargo (from source)
 cargo install lean-ctx
 ```
@@ -350,9 +350,6 @@ Run a verbose prompt with and without Caveman enabled. Compare output token coun
 ```bash
 # Recommended: install via pip / uv
 pip install agentsview
-
-# Or run via Docker for the persistent local dashboard
-docker run -d -p 3000:3000 -p 8080:8080 ghcr.io/agentsview/agentsview:latest
 ```
 
 ### Configure
@@ -435,12 +432,12 @@ model_list:
 
   - model_name: balanced
     litellm_params:
-      model: anthropic/claude-sonnet-4-20250514
+      model: anthropic/claude-sonnet-5
       api_key: os.environ/ANTHROPIC_API_KEY
 
   - model_name: powerful
     litellm_params:
-      model: anthropic/claude-opus-4-20250514
+      model: anthropic/claude-opus-5
       api_key: os.environ/ANTHROPIC_API_KEY
 
 router_settings:
@@ -535,8 +532,8 @@ Expected improvements on a large codebase (10K+ files):
 
 - [Graphify](https://github.com/Graphify-Labs/graphify) — Codebase knowledge graph
 - [Serena](https://github.com/oraios/serena) — Semantic symbol-level editing via LSP/MCP
-- [Headroom](https://github.com/chopratejas/headroom) — Context compression layer
+- [Headroom](https://github.com/headroomlabs-ai/headroom) — Context compression layer
 - [LeanCTX](https://github.com/yvgude/lean-ctx) — Context intelligence layer
 - [Caveman](https://github.com/JuliusBrussee/caveman) — Output token compression skill
-- [Agentsview](https://github.com/agentsview/agentsview) — Token budget monitoring and tracing
+- [Agentsview](https://github.com/kenn-io/agentsview) — Token budget monitoring and tracing
 - [LiteLLM](https://github.com/BerriAI/litellm) — Model routing proxy
