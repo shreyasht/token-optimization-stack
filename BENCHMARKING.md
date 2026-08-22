@@ -45,15 +45,15 @@ Neither is in a verified SWE-bench dataset. Before using either for a correctnes
 
 ## Ablation design
 
-The stack table in `TOKEN_OPTIMIZATION_STACK.md` attributes savings to individual tools (Graphify, Serena, Headroom, LeanCTX, Caveman, LiteLLM). A single baseline-vs-full-stack run only supports an aggregate "the whole stack" number — it cannot support per-tool attribution. To back the per-tool figures, run each stage as its own arm, changing exactly one variable per step:
+The stack table in `TOKEN_OPTIMIZATION_STACK.md` attributes savings to individual tools (Graphify, Serena, LeanCTX, Caveman). A single baseline-vs-full-stack run only supports an aggregate "the whole stack" number — it cannot support per-tool attribution. To back the per-tool figures, run each stage as its own arm, changing exactly one variable per step:
 
 1. baseline (no stack)
 2. + Graphify
 3. + Graphify + Serena
-4. + Graphify + Serena + Headroom
-5. + Graphify + Serena + Headroom + LeanCTX
-6. + Graphify + Serena + Headroom + LeanCTX + Caveman
-7. full stack + LiteLLM routing
+4. + Graphify + Serena + LeanCTX
+5. + Graphify + Serena + LeanCTX + Caveman
+
+Headroom and LiteLLM were dropped from the stack and this ablation design: Headroom's `headroom init claude` registration path (the only one usable without stacking a separate `wrap`/`proxy` launcher around the invocation) turned out to register an on-demand MCP tool the agent may never call, not the transparent compression the doc originally claimed — and its `mcp serve` subcommand crashed outright against a current `mcp` SDK install in `token-stack-benchmarks` testing (needs a `mcp<2` pin, and a lot of scope for its own bugs). LiteLLM was already deferred (see git history) since its `usage-based-routing-v2` is a load-balancing strategy, not the complexity-based routing the doc described, and Claude Code sends one fixed model per `-p` session. Both added complexity disproportionate to what they measurably deliver for this stack; removed rather than kept as unverified/broken claims.
 
 ## Controlled run conditions
 

@@ -89,16 +89,6 @@ install_serena() {
     fi
 }
 
-install_headroom() {
-    info "Installing Headroom (Input Compression Layer)..."
-    if $PIP_CMD "headroom-ai[all]"; then
-        success "Headroom installed successfully."
-    else
-        warn "Failed to install headroom-ai[all]. Trying core package..."
-        $PIP_CMD headroom-ai || warn "Headroom install failed."
-    fi
-}
-
 install_caveman() {
     info "Installing Caveman (Output Compression Skill)..."
     if curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/v2.1.0/install.sh | bash; then
@@ -129,25 +119,14 @@ install_agentsview() {
     fi
 }
 
-install_litellm() {
-    info "Installing LiteLLM (Model Routing Proxy)..."
-    if $PIP_CMD litellm; then
-        success "LiteLLM installed."
-    else
-        warn "LiteLLM installation failed."
-    fi
-}
-
 run_diagnostics() {
     echo ""
     info "Running post-install diagnostics..."
-    
+
     command -v graphify &>/dev/null && echo -e "  - Graphify:    ${GREEN}OK${NC}" || echo -e "  - Graphify:    ${YELLOW}Not in PATH${NC}"
     command -v serena &>/dev/null && echo -e "  - Serena:      ${GREEN}OK${NC}" || echo -e "  - Serena:      ${YELLOW}Not in PATH${NC}"
-    command -v headroom &>/dev/null && echo -e "  - Headroom:    ${GREEN}OK${NC}" || echo -e "  - Headroom:    ${YELLOW}Not in PATH${NC}"
     command -v lean-ctx &>/dev/null && echo -e "  - LeanCTX:     ${GREEN}OK${NC}" || echo -e "  - LeanCTX:     ${YELLOW}Not in PATH${NC}"
     command -v agentsview &>/dev/null && echo -e "  - Agentsview:  ${GREEN}OK${NC}" || echo -e "  - Agentsview:  ${YELLOW}Not in PATH${NC}"
-    command -v litellm &>/dev/null && echo -e "  - LiteLLM:     ${GREEN}OK${NC}" || echo -e "  - LiteLLM:     ${YELLOW}Not in PATH${NC}"
 }
 
 main() {
@@ -158,20 +137,16 @@ main() {
     echo "This script will install the open-source token optimization stack:"
     echo "  1. Graphify (Codebase Knowledge Graph)"
     echo "  2. Serena (Symbol-Level Navigation & Editing)"
-    echo "  3. Headroom (Input Compression)"
-    echo "  4. Caveman (Output Compression Skill)"
-    echo "  5. LeanCTX (Context Layer & MCP Cache)"
-    echo "  6. Agentsview (Token & Trace Observability)"
-    echo "  7. LiteLLM (Model Routing Proxy)"
+    echo "  3. Caveman (Output Compression Skill)"
+    echo "  4. LeanCTX (Context Layer & MCP Cache)"
+    echo "  5. Agentsview (Token & Trace Observability)"
     echo ""
 
     install_graphify
     install_serena
-    install_headroom
     install_caveman
     install_leanctx
     install_agentsview
-    install_litellm
 
     run_diagnostics
 

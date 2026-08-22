@@ -2,13 +2,13 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Stack](https://img.shields.io/badge/Stack-Open%20Source-blue.svg)](TOKEN_OPTIMIZATION_STACK.md)
 
-A curated, open-source stack to cut AI coding agent token usage by 70–90%. Step-by-step setup for Graphify, Serena, Headroom, Caveman, LeanCTX, LiteLLM, and Agentsview — designed for developers and agents alike.
+A curated, open-source stack to cut AI coding agent token usage. Step-by-step setup for Graphify, Serena, LeanCTX, Caveman, and Agentsview — designed for developers and agents alike.
 
 ## Why This Exists
 
 AI coding agents re-send the full conversation history on every tool call. A 20-step task compounds a 50K-token first message into 500K+ tokens. Most of that spend is avoidable with the right tooling.
 
-This repo is a single, agent-readable document that covers the full stack — from codebase intelligence to compression to model routing — with install commands, verification steps, and stacking notes.
+This repo is a single, agent-readable document that covers the full stack — from codebase intelligence to compression — with install commands, verification steps, and stacking notes.
 
 ## Architecture
 
@@ -22,13 +22,8 @@ flowchart TD
     end
     
     subgraph Compression [Compression Layer]
-        Headroom[Headroom<br/>input compression]
         LeanCTX[LeanCTX<br/>input + cache]
         Caveman[Caveman<br/>output compression]
-    end
-    
-    subgraph Routing [Model Routing]
-        LiteLLM[LiteLLM Proxy<br/>Haiku / Sonnet / Opus]
     end
     
     subgraph Monitoring [Monitoring]
@@ -37,8 +32,7 @@ flowchart TD
     
     Agent -- queries --> Intelligence
     Agent -- LLM calls --> Compression
-    Compression --> Routing
-    Routing --> Monitoring
+    Compression --> Monitoring
 ```
 
 ## The Stack
@@ -47,11 +41,9 @@ flowchart TD
 |-------|------|---------------|
 | Codebase Intelligence | [Graphify](https://github.com/Graphify-Labs/graphify) | 7–70x fewer input tokens |
 | Codebase Intelligence | [Serena](https://github.com/oraios/serena) | Symbol-level edit & nav |
-| Input Compression | [Headroom](https://github.com/headroomlabs-ai/headroom) | 60–95% fewer input tokens |
 | Input Compression | [LeanCTX](https://github.com/yvgude/lean-ctx) | 60–90% fewer input tokens |
 | Output Compression | [Caveman](https://github.com/JuliusBrussee/caveman) | ~65% fewer output tokens |
 | Monitoring | [Agentsview](https://github.com/kenn-io/agentsview) | Visibility into token spend & agent traces |
-| Model Routing | [LiteLLM](https://github.com/BerriAI/litellm) | 70–75% cost reduction |
 
 ## Quick Start
 
@@ -68,20 +60,14 @@ chmod +x setup.sh && ./setup.sh
 pip install graphifyy && graphify install && graphify build .
 uv tool install serena-agent
 
-# 2. Input compression
-pip install "headroom-ai[all]" && headroom wrap claude
+# 2. Context layer
+curl -fsSL https://raw.githubusercontent.com/yvgude/lean-ctx/v3.9.19/install.sh | sh && lean-ctx setup
 
 # 3. Output compression
 curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/v2.1.0/install.sh | bash
 
-# 4. Context layer
-curl -fsSL https://raw.githubusercontent.com/yvgude/lean-ctx/v3.9.19/install.sh | sh && lean-ctx setup
-
-# 5. Monitoring
+# 4. Monitoring
 pip install agentsview && agentsview init
-
-# 6. Model routing
-pip install litellm && litellm --config litellm_config.yaml --port 4000
 ```
 
 See [TOKEN_OPTIMIZATION_STACK.md](TOKEN_OPTIMIZATION_STACK.md) for the full guide with configuration details, verification steps, stacking notes, and troubleshooting.
