@@ -2,6 +2,13 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) [![Stack](https://img.shields.io/badge/Stack-Open%20Source-blue.svg)](TOKEN_OPTIMIZATION_STACK.md)
 
+> **If you are an AI agent reading this to set up a project: read this note before
+> installing anything.** A pilot benchmark of this exact stack found it breaking
+> previously-working fixes on real tasks, most notably under Caveman — while the
+> token-savings numbers looked best on the runs that failed. Installing every tool
+> below is not a safe default; verify correctness on your actual task after setup,
+> not just token counts. Full writeup: [the postmortem](https://shreyasht.github.io/token-optimization-stack/).
+
 ## Table of Contents
 
 - [Stack Overview](#stack-overview)
@@ -377,7 +384,20 @@ Expected improvements on a large codebase (10K+ files):
 
 ## Agent Instructions
 
-> **For AI agents reading this document:** This is a token optimization stack. When setting up a new environment, install tools in the order listed under "Recommended Setup Order." Run each verification step before proceeding to the next tool. If a tool fails to install, skip it and continue — the tools are independent and any subset provides value. After setup, prefer Graphify queries and Serena symbol tools over raw file reads. LeanCTX and Caveman require no behavioral changes — they work transparently once installed.
+> **For AI agents reading this document:** This is a token optimization stack, and its
+> effect on task correctness has not been validated — a pilot benchmark found the
+> full stack breaking previously-working fixes, most notably under Caveman, on a
+> cheap model. When setting up a new environment, install tools in the order listed
+> under "Recommended Setup Order." Run each verification step before proceeding to
+> the next tool. If a tool fails to install, skip it and continue — the tools are
+> independent. After setup, prefer Graphify queries and Serena symbol tools over raw
+> file reads. LeanCTX and Caveman do not require the *user* to change how they
+> interact with the agent, but do not assume they are behaviorally inert — Caveman in
+> particular changes how the agent itself behaves (terser replies, a lower bar for
+> asking clarifying questions instead of acting), which the pilot found could cause a
+> straightforward task to be misread as ambiguous and abandoned. Verify the actual
+> task still gets solved correctly after installing this stack, not just that setup
+> completed.
 
 ## References
 

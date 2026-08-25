@@ -89,12 +89,35 @@ This repo is designed to be read by AI agents setting up a new environment. Poin
 
 ## Contributing
 
-Found a new tool that belongs in the stack? Open a PR. The criteria:
+**Read the status note at the top first.** The pilot found the stack breaking working
+fixes while the token dashboard looked great — so "measurable token savings" alone is
+no longer a bar this project accepts. Token savings are necessary, not sufficient.
+
+**Adding a new tool to the stack.** Open a PR. The criteria:
 
 - Open-source
-- Measurable token or cost savings
 - Works with at least one major AI coding agent
 - Includes reproducible install steps
+- **Comes with a correctness check, not just a token count.** Show the tool solving
+  a real, verifiable task (a test suite that passes/fails, not a vibe check) both
+  with and without the tool. A savings number with no correctness evidence next to
+  it will be asked for one, not merged.
+
+**Picking up where the pilot stopped.** This is probably the more useful way to
+contribute right now — the tool list is mostly settled, the open questions aren't.
+Three concrete ones from [the postmortem](https://shreyasht.github.io/token-optimization-stack/):
+
+- Why does the stack sometimes produce a real patch that applies cleanly but doesn't
+  fix the bug? (Different from the empty-patch failure, which is already explained.)
+- Run the full 5-arm ablation (baseline → +Graphify → +Serena → +LeanCTX → +Caveman)
+  instead of just baseline-vs-full-stack. The current evidence points at Caveman
+  specifically for the one failure that's been root-caused — that's a hypothesis to
+  confirm, not a settled fact.
+- Rerun the pilot on Sonnet or Opus instead of Haiku, and check whether the
+  correctness regression shrinks. The prediction in the postmortem is that a weaker
+  model makes this worse, not better — that's testable.
+
+PRs against `token-stack-benchmarks` (the harness) are as welcome as PRs here.
 
 ## License
 
