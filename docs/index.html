@@ -114,16 +114,16 @@
 <h2>What the stack looked like early on</h2>
 <p>The first version of the stack had five tools in it:</p>
 <ul>
-  <li><strong>Graphify</strong> — turns a codebase into a queryable knowledge graph, so the agent can ask "what calls this" instead of grepping and reading files to find out.</li>
-  <li><strong>Serena</strong> — symbol-level code navigation and editing via LSP, instead of raw file reads and text edits.</li>
-  <li><strong>Headroom</strong> — advertised as transparent context compression that "requires no behavioral changes" once installed.</li>
-  <li><strong>LiteLLM</strong> — a routing layer, with the idea being complexity-based model routing: cheap model for simple subtasks, expensive model only when needed.</li>
-  <li><strong>Caveman</strong> — output-side compression; a terser interaction style plus compressed subagent output, to cut down on verbose back-and-forth.</li>
+  <li><strong><a href="https://github.com/Graphify-Labs/graphify">Graphify</a></strong> — turns a codebase into a queryable knowledge graph, so the agent can ask "what calls this" instead of grepping and reading files to find out.</li>
+  <li><strong><a href="https://github.com/oraios/serena">Serena</a></strong> — symbol-level code navigation and editing via LSP, instead of raw file reads and text edits.</li>
+  <li><strong><a href="https://github.com/headroomlabs-ai/headroom">Headroom</a></strong> — advertised as transparent context compression that "requires no behavioral changes" once installed.</li>
+  <li><strong><a href="https://github.com/BerriAI/litellm">LiteLLM</a></strong> — a routing layer, with the idea being complexity-based model routing: cheap model for simple subtasks, expensive model only when needed.</li>
+  <li><strong><a href="https://github.com/JuliusBrussee/caveman">Caveman</a></strong> — output-side compression; a terser interaction style plus compressed subagent output, to cut down on verbose back-and-forth.</li>
 </ul>
 <p>Two of those five didn't survive contact with an actual benchmark harness.</p>
 <p><strong>Headroom</strong> turned out not to do what its own documentation implied. The only registration path that didn't involve wrapping the whole <code>claude</code> invocation in a separate launcher (<code>headroom init claude</code>) registers an on-demand MCP tool — something the agent <em>can</em> call, not something that transparently compresses context whether the agent calls it or not. <code>headroom doctor</code> confirmed nothing was actually being routed through it without a separately running proxy process and an <code>ANTHROPIC_BASE_URL</code> override — a materially heavier integration than "requires no behavioral changes" suggested. On top of that, its <code>mcp serve</code> subcommand crashed outright against a current MCP SDK install, needing an old, pinned <code>mcp&lt;2</code> dependency to even start.</p>
 <p><strong>LiteLLM</strong> had a more fundamental problem: its usage-based routing is a <em>load-balancing</em> strategy across provider endpoints, not the complexity-based, per-subtask routing the idea in my head required. And Claude Code, mechanically, sends one fixed model for an entire <code>-p</code> session — there's no hook to swap models mid-task based on subtask complexity. The tool I wanted didn't exist yet in the shape I needed it.</p>
-<p>Both got removed rather than kept in as unverified claims. What was left — Graphify, Serena, a context-compression/caching layer (LeanCTX), and Caveman — became the actual stack under test.</p>
+<p>Both got removed rather than kept in as unverified claims. What was left — Graphify, Serena, a context-compression/caching layer (<a href="https://github.com/yvgude/lean-ctx">LeanCTX</a>), and Caveman — became the actual stack under test.</p>
 
 <h2>Why I had to stop</h2>
 <p>I want to be honest about the actual reason this stopped, because it's not "the idea was wrong" (that came later) — it's that <strong>the experiment itself stopped being economically sane to keep running.</strong></p>
