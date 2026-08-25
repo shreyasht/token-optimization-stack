@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>I tried to build a "token optimization stack" for coding agents. Here's why I killed it.</title>
+<meta name="description" content="A pilot benchmark, a $5.60 receipt, and the 97%-savings number that turned out to be a silent failure.">
+<style>
+  :root {
+    --bg: #fbfaf8;
+    --fg: #1a1a1a;
+    --muted: #5a5a5a;
+    --rule: #e2ded8;
+    --accent: #8a3b2b;
+    --code-bg: #f0ede7;
+    --quote-bg: #f5f0e8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16151a;
+      --fg: #e9e6df;
+      --muted: #a5a099;
+      --rule: #322f2a;
+      --accent: #e8a488;
+      --code-bg: #221f24;
+      --quote-bg: #201d21;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: Georgia, "Times New Roman", serif;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 1.25rem;
+  }
+  main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 4rem 0 6rem;
+  }
+  h1 {
+    font-size: 2rem;
+    line-height: 1.25;
+    margin: 0 0 0.75rem;
+    font-weight: 700;
+  }
+  .dek {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--muted);
+    font-size: 1.1rem;
+    font-style: italic;
+    margin: 0 0 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  h2 {
+    font-size: 1.4rem;
+    margin: 2.75rem 0 1rem;
+    font-weight: 700;
+  }
+  p { margin: 0 0 1.15rem; font-size: 1.08rem; }
+  ul { margin: 0 0 1.15rem; padding-left: 1.4rem; }
+  li { margin-bottom: 0.6rem; font-size: 1.08rem; }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+  a:hover { opacity: 0.8; }
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    background: var(--code-bg);
+    padding: 0.12em 0.4em;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  blockquote {
+    margin: 1.75rem 0;
+    padding: 0.9rem 1.25rem;
+    background: var(--quote-bg);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+  }
+  blockquote p {
+    margin: 0;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--fg);
+  }
+  strong { font-weight: 700; }
+  .byline {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+  .repo-links {
+    font-size: 1.08rem;
+  }
+  .repo-links strong { display: block; margin-bottom: 0.15rem; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>I tried to build a "token optimization stack" for coding agents. Here's why I killed it.</h1>
+<p class="dek">A pilot benchmark, a $5.60 receipt, and the 97%-savings number that turned out to be a silent failure.</p>
+
+<h2>How it started</h2>
+<p>This started from a plain, unglamorous problem: I kept running into token limits at work. I was using Claude Code for real engineering work, burning through context and budget faster than I wanted to, and the obvious next question was — can I actually cut that down without cutting into the quality of what the agent produces? Not "use a cheaper model and hope," but something more deliberate: a stack of tools that each attack a different part of the token bill — how much context gets read, how much gets re-read, how verbose the agent's own output is, how it navigates a codebase in the first place.</p>
+<p>That question turned into a side project: <a href="https://github.com/shreyasht/token-optimization-stack"><code>token-optimization-stack</code></a>, a public repo documenting a composable set of tools meant to sit around Claude Code and reduce token spend, plus <a href="https://github.com/shreyasht/token-stack-benchmarks"><code>token-stack-benchmarks</code></a>, a benchmarking harness to actually measure whether any of it worked.</p>
+<p>I'm writing this up because the project ended, a few weeks in, in a place I didn't expect: not with a validated stack and a savings number, but with a concrete demonstration that the token-savings numbers I was looking at were actively misleading, and a cost model that made the whole exercise stop making sense before I even got to publish a result. I think both of those are more useful to write about than a clean win would have been.</p>
+
+<h2>What the stack looked like early on</h2>
+<p>The first version of the stack had five tools in it:</p>
+<ul>
+  <li><strong>Graphify</strong> — turns a codebase into a queryable knowledge graph, so the agent can ask "what calls this" instead of grepping and reading files to find out.</li>
+  <li><strong>Serena</strong> — symbol-level code navigation and editing via LSP, instead of raw file reads and text edits.</li>
+  <li><strong>Headroom</strong> — advertised as transparent context compression that "requires no behavioral changes" once installed.</li>
+  <li><strong>LiteLLM</strong> — a routing layer, with the idea being complexity-based model routing: cheap model for simple subtasks, expensive model only when needed.</li>
+  <li><strong>Caveman</strong> — output-side compression; a terser interaction style plus compressed subagent output, to cut down on verbose back-and-forth.</li>
+</ul>
+<p>Two of those five didn't survive contact with an actual benchmark harness.</p>
+<p><strong>Headroom</strong> turned out not to do what its own documentation implied. The only registration path that didn't involve wrapping the whole <code>claude</code> invocation in a separate launcher (<code>headroom init claude</code>) registers an on-demand MCP tool — something the agent <em>can</em> call, not something that transparently compresses context whether the agent calls it or not. <code>headroom doctor</code> confirmed nothing was actually being routed through it without a separately running proxy process and an <code>ANTHROPIC_BASE_URL</code> override — a materially heavier integration than "requires no behavioral changes" suggested. On top of that, its <code>mcp serve</code> subcommand crashed outright against a current MCP SDK install, needing an old, pinned <code>mcp&lt;2</code> dependency to even start.</p>
+<p><strong>LiteLLM</strong> had a more fundamental problem: its usage-based routing is a <em>load-balancing</em> strategy across provider endpoints, not the complexity-based, per-subtask routing the idea in my head required. And Claude Code, mechanically, sends one fixed model for an entire <code>-p</code> session — there's no hook to swap models mid-task based on subtask complexity. The tool I wanted didn't exist yet in the shape I needed it.</p>
+<p>Both got removed rather than kept in as unverified claims. What was left — Graphify, Serena, a context-compression/caching layer (LeanCTX), and Caveman — became the actual stack under test.</p>
+
+<h2>Why I had to stop</h2>
+<p>I want to be honest about the actual reason this stopped, because it's not "the idea was wrong" (that came later) — it's that <strong>the experiment itself stopped being economically sane to keep running.</strong></p>
+<p>The benchmarking methodology I'd written called for real rigor: SWE-bench Verified and Multi-SWE-bench tasks (real GitHub issues with a known-good fix and a real test suite to check it against, not synthetic problems), sixteen repos, twenty tasks per repo, five ablation arms to attribute savings to each individual tool, three repeats per task per arm because a single LLM run is an anecdote, not a measurement. That's the "full matrix." Multiply it out and it's on the order of <strong>4,800 individual agent runs</strong> — each one a full Claude Code session against a real repo, inside a fresh Docker container, potentially spinning up a Java language server, cloning dependencies, compiling.</p>
+<p>I never got anywhere near that. I ran a deliberately cheap 2-task-per-repo pilot — 31 tasks, 2 arms (baseline vs. full stack), one repeat — specifically to sanity-check the idea before spending real money on the full matrix. Even that pilot, run on the <em>cheapest</em> model I had (<code>claude-haiku-4-5</code>, medium effort — not Sonnet, not Opus), partially completed (11 of 31 task pairs, 22 of 62 planned runs) at roughly <strong>$5.60 in raw agent API cost alone.</strong> That's before counting EC2 compute, the local Docker image builds, or the many hours of environment debugging it took just to get a single task to run at all — getting a Linux-shaped benchmark harness working cleanly on both an EC2 box and an Apple Silicon Mac turned into its own multi-day project, full of failures that had nothing to do with the actual research question.</p>
+<p>Extrapolate that per-run cost across the actual full matrix — 4,800 runs instead of 22 — and you're looking at somewhere north of <strong>$1,200 in API spend, on the cheapest model available, before a single result is trustworthy enough to publish.</strong> And that number assumes haiku is good enough to trust for this task. It wasn't:</p>
+<ul>
+  <li>On the Java-track tasks, the agent produced <em>zero</em> correct fixes under the full stack. Some of that was real stack-caused breakage, but some of it was haiku simply giving up or producing a patch that only deleted its own scratch debug file.</li>
+  <li>On the tasks it did solve at baseline, the full stack broke two out of three of them under the "improvements" — one task where the agent stopped producing any code change at all, one where it produced a plausible-looking patch that didn't actually fix the bug.</li>
+</ul>
+<p>That's the tension that killed this specific approach to the project: the model cheap enough to make the benchmark affordable was not reliably good enough to distinguish "the stack is helping" from "the stack is confusing a weak model." Stepping up to a stronger model to fix that would have multiplied an already uncomfortable cost estimate by several times more, for a side project.</p>
+<blockquote><p>Is this savings number — or this correctness failure — actually about the stack? Or is it about the fact that I'm running everything on the cheapest model I could afford to run 4,800 times of?</p></blockquote>
+<p>I didn't have a good answer to that. I still don't. That ambiguity, at that price, is where I stopped.</p>
+
+<h2>What I actually found, for what it's worth</h2>
+<p>Even the partial pilot data was worth publishing, because it directly contradicts what a token-savings-only view would have told me. On the three Python-track tasks the plain baseline agent solved correctly, adding the full optimization stack:</p>
+<ul>
+  <li>Broke one of them completely — the agent, under the "optimized" stack, produced no code change at all. Looked at from the token-savings side alone, this run showed <strong>97% fewer tokens used</strong> — the single best-looking number in the whole pilot. It was also a complete failure to do the task.</li>
+  <li>Broke a second one — a patch was produced, it applied, and the target test still failed.</li>
+  <li>Left the third one correct, but using <em>more</em> tokens than baseline, not fewer.</li>
+</ul>
+<p>Net result on the tasks that mattered: the full stack preserved correctness on 1 of 3 previously-working fixes, and even that one case was a net loss on cost. If I'd stopped at the token-count dashboard — which is what most "token optimization" claims I'd seen elsewhere seem to do — I would have shipped a blog post with a 97% savings headline number pulled from the exact run that silently failed the task.</p>
+<blockquote><p>Token and cost savings numbers, without a real correctness check against the actual test suite, aren't just incomplete — they can point in exactly the wrong direction. And the biggest, flashiest savings number is a plausible place for that to happen, not an unlikely one.</p></blockquote>
+
+<h2>If you want to pick this up</h2>
+<p>I'm not going to keep running this — not because I think the underlying question is answered, but because I can't afford to answer it properly on my own budget with the current tooling. If someone wants to take this further, both repos are public:</p>
+<ul class="repo-links">
+  <li><strong><a href="https://github.com/shreyasht/token-optimization-stack">token-optimization-stack</a></strong> — the stack itself: setup scripts and docs for Graphify, Serena, LeanCTX, and Caveman, plus the benchmarking methodology this whole pilot followed.</li>
+  <li><strong><a href="https://github.com/shreyasht/token-stack-benchmarks">token-stack-benchmarks</a></strong> — the harness: Dockerized ablation-arm runner, task sampling, and the SWE-bench / Multi-SWE-bench scoring scripts, including everything I found along the way getting a Linux-shaped benchmark harness to run correctly on both EC2 and an Apple Silicon Mac — case-sensitivity bugs, architecture mismatches, a brand-new Python version breaking a scoring dependency, and more.</li>
+</ul>
+<p>Contributions, forks, and "actually here's why your pilot was wrong" pull requests are genuinely welcome. A few concrete open threads if you want a starting point:</p>
+<ul>
+  <li><strong>Why does the full stack produce empty or broken patches on tasks the plain baseline solves correctly?</strong> Not yet root-caused. Could be the compression layer dropping context the agent actually needed, could be something else entirely.</li>
+  <li><strong>The full 5-arm ablation was never run</strong> — only a 2-arm baseline-vs-full-stack pilot. It's entirely possible one specific tool in the stack is responsible for the regression and the others are fine, or even helping.</li>
+  <li><strong>Nobody has run this on a stronger model.</strong> Everything above is haiku at medium effort, specifically because it was the only model cheap enough to pilot at all. It's an open question whether Sonnet or Opus, at real per-run cost, would show a real positive effect that a weak model can't demonstrate — I just couldn't afford to find out.</li>
+</ul>
+
+<p class="byline">Written up from a benchmark pilot run in August 2026.</p>
+
+</main>
+</body>
+</html>
