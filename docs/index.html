@@ -157,16 +157,6 @@
   <li><strong>Nobody has run this on a stronger model.</strong> Everything above is haiku at medium effort, specifically because it was the only model cheap enough to pilot at all. It's an open question whether Sonnet or Opus, at real per-run cost, would show a real positive effect that a weak model can't demonstrate — I just couldn't afford to find out.</li>
 </ul>
 
-<h2>Summary</h2>
-<ul>
-  <li>Started from a real problem: hitting token limits at work, and wanting a deliberate fix rather than "just use a cheaper model."</li>
-  <li>The stack began with five tools; two (Headroom, LiteLLM) didn't survive first contact with the benchmark harness and were cut before a single measured run.</li>
-  <li>Getting the benchmark itself running was its own fight — six unrelated environment bugs across EC2 and an Apple Silicon Mac before a single task could execute.</li>
-  <li>A deliberately cheap pilot, on the cheapest model available, already cost $5.60 for a fraction of the planned runs. The full rigorous matrix would run past $1,200 — not viable for a side project, especially on a model too weak to fully trust.</li>
-  <li>The real finding: token metrics and correctness metrics pointed in opposite directions on the tasks tested — the single worst outcome in the batch produced the best-looking token-savings number. Report cost per <em>solved</em> task, not cost per task, and the trap closes.</li>
-  <li>Stopping here, not because the question is answered, but because I can't afford to answer it properly right now. Both repos are public — pick it up if you want to.</li>
-</ul>
-
 <p class="byline">Written up from a benchmark pilot run in August 2026.</p>
 
 </main>
