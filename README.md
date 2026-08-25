@@ -75,7 +75,7 @@ uv tool install serena-agent
 curl -fsSL https://raw.githubusercontent.com/yvgude/lean-ctx/v3.9.19/install.sh | sh && lean-ctx setup
 
 # 3. Output compression
-curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/v2.1.0/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/v2.3.1/install.sh | bash
 
 # 4. Monitoring
 pip install agentsview && agentsview init

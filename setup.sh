@@ -91,7 +91,7 @@ install_serena() {
 
 install_caveman() {
     info "Installing Caveman (Output Compression Skill)..."
-    if curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/v2.1.0/install.sh | bash; then
+    if curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/v2.3.1/install.sh | bash; then
         success "Caveman skill installed."
     else
         warn "Caveman install script failed. Continuing with remaining tools..."

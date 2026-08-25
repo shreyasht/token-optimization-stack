@@ -237,7 +237,7 @@ LeanCTX auto-configures for Cursor, Claude Code, CodeBuddy, GitHub Copilot, Wind
 
 ```bash
 # One-line install — pinned to a release tag, not a floating branch
-curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/v2.1.0/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/v2.3.1/install.sh | bash
 
 # Alternative: npm
 npm install -g @caveman-ai/cli && caveman setup --install
@@ -249,7 +249,7 @@ claude plugin install caveman@caveman
 
 Restart Claude Code after installation.
 
-**Verify without piping to shell:** each release publishes `checksums.txt` and a detached signature (`checksums.txt.keysig`) alongside the platform binaries. Download the binary for your platform plus `checksums.txt` from the [releases page](https://github.com/JuliusBrussee/caveman/releases), then:
+**Verify without piping to shell:** the compiled binaries, `checksums.txt`, and a detached signature (`checksums.txt.keysig`) are **not** on the version release you just installed (e.g. `v2.3.1`) — they're published under a separate `bin-vX.Y.Z` tag on the same [releases page](https://github.com/JuliusBrussee/caveman/releases) (as of this writing, `v2.3.1` pins `bin-v1.1.3`; check the version release's own notes for which `bin-` tag it pins before downloading). Download the binary for your platform plus that `bin-` tag's `checksums.txt`, then:
 ```bash
 sha256sum -c checksums.txt --ignore-missing
 ```
