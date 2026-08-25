@@ -4,6 +4,17 @@
 
 A curated, open-source stack to cut AI coding agent token usage. Step-by-step setup for Graphify, Serena, LeanCTX, Caveman, and Agentsview — designed for developers and agents alike.
 
+> **Status (2026-08-25): the token-savings claims below are per-tool vendor claims, not
+> this project's own measured result.** A pilot benchmark that actually scored
+> correctness (not just token counts) found the combined stack breaking previously
+> working fixes on a cheap model, with the biggest token-savings numbers coming from
+> the runs that failed the task. The pilot was stopped before it could be run
+> rigorously enough to publish a trustworthy number either way — see
+> [the postmortem](https://shreyasht.github.io/token-optimization-stack/) and
+> [`token-stack-benchmarks`](https://github.com/shreyasht/token-stack-benchmarks) for
+> the full data. Treat this repo as documentation of a hypothesis under test, not a
+> validated result. Contributions welcome.
+
 ## Why This Exists
 
 AI coding agents re-send the full conversation history on every tool call. A 20-step task compounds a 50K-token first message into 500K+ tokens. Most of that spend is avoidable with the right tooling.
