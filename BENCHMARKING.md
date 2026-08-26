@@ -103,6 +103,7 @@ No single point figures. This replaces claims like "70–90% fewer input tokens"
 - [ ] Run the full 5-arm ablation to confirm Caveman specifically (not LeanCTX/Graphify/Serena) is responsible for the root-caused failure
 - [ ] Rerun the pilot on Sonnet or Opus to check whether the haiku-weakness prediction (regression should shrink on a stronger model) holds
 - [ ] Add a cheap pre-scoring gate — reject a run before the expensive Docker/test-suite stage if it has no patch, stops at ~1 turn, or never reaches test execution. Cuts the cost estimate above (which prices every run at the full scoring stage uniformly) and catches cases like the 97%-savings/1-turn run automatically instead of by hand after the fact. Doesn't fix the small-n problem, just stops scoring budget being spent on runs that were never going to produce a result. (via a dev.to comment on the postmortem)
+- [ ] Capture the tool-call trace per run, not just the summary JSON — `run-task.sh` currently calls `claude -p --output-format json`, which returns only `num_turns`/`usage`/`total_cost_usd`/result text, no record of which files or symbols a run actually read. Needed to check a live suspect on the broken-patch case: whether Graphify/Serena's symbol view hid a call site or data path a plain file read would have caught. Use `--output-format stream-json`, or archive the session transcript file before the container is torn down. (via a dev.to comment on the postmortem)
 
 ## References
 
