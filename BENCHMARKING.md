@@ -102,6 +102,7 @@ No single point figures. This replaces claims like "70–90% fewer input tokens"
 - [ ] Root-cause the broken-patch case (patch applied, target test still failed) — the empty-patch failure mode is understood, this one isn't
 - [ ] Run the full 5-arm ablation to confirm Caveman specifically (not LeanCTX/Graphify/Serena) is responsible for the root-caused failure
 - [ ] Rerun the pilot on Sonnet or Opus to check whether the haiku-weakness prediction (regression should shrink on a stronger model) holds
+- [ ] Add a cheap pre-scoring gate — reject a run before the expensive Docker/test-suite stage if it has no patch, stops at ~1 turn, or never reaches test execution. Cuts the cost estimate above (which prices every run at the full scoring stage uniformly) and catches cases like the 97%-savings/1-turn run automatically instead of by hand after the fact. Doesn't fix the small-n problem, just stops scoring budget being spent on runs that were never going to produce a result. (via a dev.to comment on the postmortem)
 
 ## References
 
